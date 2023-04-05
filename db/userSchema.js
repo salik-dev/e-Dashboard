@@ -6,5 +6,5 @@ const userSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model(
-    'student', userSchema
+    'users', userSchema
 );
