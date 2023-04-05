@@ -1,23 +1,42 @@
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Form, Input } from 'antd';
-import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 const SignUp = () => {
 
     const [name, setName] = useState('');
-    const [mail, setMail] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [isLoading, setisLoading] = useState(false);
+    const navigate = useNavigate();
 
-    const onFinish = (values) => {
-        console.log('Received values of form: ', values);
-        console.log(`name = ${name}`);
-        console.log(`mail = ${mail}`);
-        console.log(`password = ${password}`);
+    useEffect(() => {
+        const userAuth = localStorage.getItem('user');
+        if (userAuth) {
+            navigate('/');
+        }
+    });
+
+    const onFinish = async (values) => {
+        setisLoading(true);
+        let result = await fetch('http://localhost:4500/register', {
+            method: 'post',
+            body: JSON.stringify({ name, email, password }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        result = await result.json();
+        setisLoading(false);
+        localStorage.setItem('user', JSON.stringify(result));
+        navigate('/');
     };
 
     return (
         <>
             <h1>Sign Up Components</h1>
+            {isLoading && <div>Pending ...</div>}
             <Form
                 name="normal_login"
                 className="login-form"
@@ -39,7 +58,6 @@ const SignUp = () => {
                     <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Name"
                         value={name}
                         onChange={(e) => {
-                            console.log(e.target.value);
                             setName(e.target.value);
                         }} />
                 </Form.Item>
@@ -56,10 +74,9 @@ const SignUp = () => {
                         prefix={<LockOutlined className="site-form-item-icon" />}
                         type="email"
                         placeholder="Email"
-                        value={mail}
+                        value={email}
                         onChange={(e) => {
-                            console.log(e.target.value);
-                            setMail(e.target.value);
+                            setEmail(e.target.value);
                         }}
                     />
                 </Form.Item>
@@ -78,7 +95,6 @@ const SignUp = () => {
                         placeholder="Password"
                         value={password}
                         onChange={(e) => {
-                            console.log(e.target.value);
                             setPassword(e.target.value);
                         }}
                     />
